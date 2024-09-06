@@ -45,7 +45,7 @@ Patch0:         %{name}-run-class.sh.patch
 Provides:       kafka
 Packager:       Dora Even <doraeven@163.com>
 
-BuildRequires: java-11-openjdk-devel
+BuildRequires: java-11-openjdk-devel, systemd
 Requires:       systemd
 # For now, the OpenJDK 11 packages in RHEL 7 and 8 don��t provide java-headless, jre-headless, or any of the unversioned Java packages.
 # Requires:       java >= 1.8.0
