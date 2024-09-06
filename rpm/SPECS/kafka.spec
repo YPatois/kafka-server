@@ -135,7 +135,7 @@ install -p -m 0755 %{SOURCE19} %{buildroot}%{_libexecdir}/%{name}-%{_kraft_name}
 # /var/log/kafka/
 install -d -m 0755 %{buildroot}%{_var}/log/%{name}/
 # /var/log/zookeeper/
-install -d -m 0755 %{buildroot}%{_var}/log/%{_zookeeper_name}/
+# install -d -m 0755 %{buildroot}%{_var}/log/%{_zookeeper_name}/ # Done by Zookeeper RPM
 # /var/log/kraft/
 install -d -m 0755 %{buildroot}%{_var}/log/%{_kraft_name}/
 
@@ -143,7 +143,7 @@ install -d -m 0755 %{buildroot}%{_var}/log/%{_kraft_name}/
 # /var/lib/kafka/
 install -d -m 0755 %{buildroot}%{_sharedstatedir}/%{name}/
 # /var/lib/zookeeper/
-install -d -m 0755 %{buildroot}%{_sharedstatedir}/%{_zookeeper_name}/
+# install -d -m 0755 %{buildroot}%{_sharedstatedir}/%{_zookeeper_name}/ # Done by Zookeeper RPM
 # /var/lib/kraft/
 install -d -m 0755 %{buildroot}%{_sharedstatedir}/%{_kraft_name}/
 
