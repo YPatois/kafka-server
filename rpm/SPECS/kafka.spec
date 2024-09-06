@@ -13,14 +13,14 @@
 
 Name:           kafka
 Version:        3.8.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
 
 Epoch:          1
 
 License:        Apache License v2
 URL:            https://kafka.apache.org/
-Source0:        https://downloads.apache.org/%{name}/%{version}/%{name}_%{_scala_version}-%{version}.tgz
+Source0:        https://downloads.apache.org/%{name}/%{version}/%{name}-%{version}-src.tgz
 Source1:        %{name}.service
 Source2:        %{name}.xml
 Source3:        %{name}.sysconfig
@@ -45,9 +45,9 @@ Patch0:         %{name}-run-class.sh.patch
 Provides:       kafka
 Packager:       Dora Even <doraeven@163.com>
 
-BuildRequires:  java-21-openjdk
+BuildRequires: java-11-openjdk-devel
 Requires:       systemd
-# For now, the OpenJDK 11 packages in RHEL 7 and 8 don¡¯t provide java-headless, jre-headless, or any of the unversioned Java packages.
+# For now, the OpenJDK 11 packages in RHEL 7 and 8 donï¿½ï¿½t provide java-headless, jre-headless, or any of the unversioned Java packages.
 # Requires:       java >= 1.8.0
 
 Requires(pre):     /usr/sbin/groupadd
@@ -63,34 +63,38 @@ Clients: They allow you to write distributed applications and microservices that
 https://github.com/doraeven/kafka-server
 https://kafka.apache.org/documentation/#introduction
 
+%define _kafka_src_dir  %{name}-%{version}-src
+%define _kafka_dist_dir %{name}_%{_scala_version}-%{version}
 
 %prep
-%setup -q -n %{name}_%{_scala_version}-%{version}
+%setup -q -n %{_kafka_src_dir}
 %patch0 -p1
 
 
 %build
-# use binary package not need to build
+./gradlew clean releaseTarGz
+tar axvf core/build/distributions/%{name}_%{_scala_version}-%{version}.tgz
 
+# kafka_2.13-3.8.0/libs/
 
 %install
 # bin
 # /usr/bin/kafka/
 install -d -m 0755 %{buildroot}%{_bindir}/%{name}/
-install -p -m 0755 %{_builddir}/%{name}_%{_scala_version}-%{version}/bin/*.sh %{buildroot}%{_bindir}/%{name}/
+install -p -m 0755 %{_builddir}/%{_kafka_src_dir}/bin/*.sh %{buildroot}%{_bindir}/%{name}/
 
 # config
 # /etc/kafka/
 install -d -m 0755 %{buildroot}%{_sysconfdir}/%{name}/
-install -p -m 0644 %{_builddir}/%{name}_%{_scala_version}-%{version}/config/*.properties %{buildroot}%{_sysconfdir}/%{name}/
-install -p -m 0644 %{_builddir}/%{name}_%{_scala_version}-%{version}/config/*.conf %{buildroot}%{_sysconfdir}/%{name}/
+install -p -m 0644 %{_builddir}/%{_kafka_src_dir}/config/*.properties %{buildroot}%{_sysconfdir}/%{name}/
+install -p -m 0644 %{_builddir}/%{_kafka_src_dir}/config/*.conf %{buildroot}%{_sysconfdir}/%{name}/
 # replace server.properties with datadir log.dirs=/tmp/kafka-logs -> log.dirs=/var/lib/kafka/
 sed -i "s:^log.dirs=.*:log.dirs=%{_sharedstatedir}/%{name}/:" %{buildroot}%{_sysconfdir}/%{name}/server.properties
 # replace zookeeper.properties with datadir dataDir=/tmp/zookeeper -> dataDir=/var/lib/zookeeper/
 sed -i "s:^dataDir=.*:dataDir=%{_sharedstatedir}/%{_zookeeper_name}/:" %{buildroot}%{_sysconfdir}/%{name}/zookeeper.properties
 # /etc/kafka/kraft/
 install -d -m 0755 %{buildroot}%{_sysconfdir}/%{name}/kraft/
-install -p -m 0644 %{_builddir}/%{name}_%{_scala_version}-%{version}/config/kraft/*.properties %{buildroot}%{_sysconfdir}/%{name}/kraft/
+install -p -m 0644 %{_builddir}/%{_kafka_src_dir}/config/kraft/*.properties %{buildroot}%{_sysconfdir}/%{name}/kraft/
 # replace kraft/server.properties with datadir log.dirs=/tmp/kraft-combined-logs -> log.dirs=/var/lib/kraft/
 sed -i "s:^log.dirs=.*:log.dirs=%{_sharedstatedir}/%{_kraft_name}/:" %{buildroot}%{_sysconfdir}/%{name}/%{_kraft_name}/server.properties
 # /etc/sysconfig/
@@ -117,7 +121,7 @@ install -p -m 0644 %{SOURCE18} %{buildroot}%{_sysusersdir}/%{name}-%{_kraft_name
 # libs
 # /usr/lib64/kafka-{version}/
 install -d -m 0755 %{buildroot}%{_libdir}/%{name}_%{_scala_version}-%{version}/
-install -p -m 0644 %{_builddir}/%{name}_%{_scala_version}-%{version}/libs/* %{buildroot}%{_libdir}/%{name}_%{_scala_version}-%{version}/
+install -p -m 0644 %{_builddir}/%{_kafka_src_dir}/%{_kafka_dist_dir}/libs/* %{buildroot}%{_libdir}/%{name}_%{_scala_version}-%{version}/
 # symlink
 # /usr/lib64/kafka/ -> /usr/lib64/kafka-{version}/
 ln -s %{name}_%{_scala_version}-%{version}/ %{buildroot}%{_libdir}/%{name}
@@ -225,7 +229,7 @@ install -p -m 0644 %{SOURCE14} %{buildroot}%{_prefix}/lib/firewalld/services/%{n
 
 
 %doc NOTICE
-%doc site-docs/
+%doc %{_kafka_dist_dir}/site-docs/
 %doc config/
 
 
@@ -263,8 +267,11 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Mon Aug 09 2024 Dora Even <doraeven@163.com> - 3.8.0-1
+* Wed Sep 04 2024 Yannick Patois <yannick.patois@iphc.cnrs.fr> - 3.8.0-2
 - Build kafka package
 
-* Sat Aug 09 2024 Dora Even <doraeven@163.com>
+* Fri Aug 09 2024 Dora Even <doraeven@163.com> - 3.8.0-1
+- Build kafka package
+
+* Fri Aug 09 2024 Dora Even <doraeven@163.com>
 - Create kafka package project
