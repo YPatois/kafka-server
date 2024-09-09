@@ -46,7 +46,7 @@ Provides:       kafka
 Packager:       Dora Even <doraeven@163.com>
 
 BuildRequires: java-11-openjdk-devel, systemd
-Requires:       systemd
+Requires:       java,nc,systemd
 # For now, the OpenJDK 11 packages in RHEL 7 and 8 don��t provide java-headless, jre-headless, or any of the unversioned Java packages.
 # Requires:       java >= 1.8.0
 
@@ -159,9 +159,9 @@ install -d -m 0755 %{buildroot}%{_rundir}/%{_kraft_name}/
 # systemd
 # /usr/lib/systemd/system/
 install -d -m 0755 %{buildroot}%{_unitdir}/
-install -p -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}/%{name}.service
-install -p -m 0644 %{SOURCE7} %{buildroot}%{_unitdir}/%{name}-%{_zookeeper_name}.service
-install -p -m 0644 %{SOURCE13} %{buildroot}%{_unitdir}/%{name}-%{_kraft_name}.service
+install -p -m 0655 %{SOURCE1} %{buildroot}%{_unitdir}/%{name}.service
+install -p -m 0655 %{SOURCE7} %{buildroot}%{_unitdir}/%{name}-%{_zookeeper_name}.service
+install -p -m 0655 %{SOURCE13} %{buildroot}%{_unitdir}/%{name}-%{_kraft_name}.service
 
 # firewalld
 # /usr/lib/firewalld/services/
