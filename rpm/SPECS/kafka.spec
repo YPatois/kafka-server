@@ -159,9 +159,9 @@ install -d -m 0755 %{buildroot}%{_rundir}/%{_kraft_name}/
 # systemd
 # /usr/lib/systemd/system/
 install -d -m 0755 %{buildroot}%{_unitdir}/
-install -p -m 0655 %{SOURCE1} %{buildroot}%{_unitdir}/%{name}.service
-install -p -m 0655 %{SOURCE7} %{buildroot}%{_unitdir}/%{name}-%{_zookeeper_name}.service
-install -p -m 0655 %{SOURCE13} %{buildroot}%{_unitdir}/%{name}-%{_kraft_name}.service
+install -p -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}/%{name}.service
+install -p -m 0644 %{SOURCE7} %{buildroot}%{_unitdir}/%{name}-%{_zookeeper_name}.service
+install -p -m 0644 %{SOURCE13} %{buildroot}%{_unitdir}/%{name}-%{_kraft_name}.service
 
 # firewalld
 # /usr/lib/firewalld/services/
